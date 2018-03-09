@@ -3,7 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CreatePlugin.iml" filepath="$PROJECT_DIR$/CreatePlugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CreatePlugin.iml" filepath="$PROJECT_DIR$/CreatePlugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myfirstplugin/myfirstplugin.iml" filepath="$PROJECT_DIR$/myfirstplugin/myfirstplugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/myfirstplugin/myfirstplugin.iml" filepath="$PROJECT_DIR$/myfirstplugin/myfirstplugin.iml" />
     </modules>
   </component>

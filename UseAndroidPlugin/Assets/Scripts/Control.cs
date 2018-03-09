@@ -58,12 +58,23 @@ public class Control : MonoBehaviour {
 		
 	}
 
-	void onOneShot()
+
+	int getAmplitude()
 	{
-		int amp, ms;
+		int amp;
 		if (!Int32.TryParse(inputAmplitude.text, out amp)) {
 			amp = 1;
 		}
+
+		return amp;
+	}
+
+
+	void onOneShot()
+	{
+		int amp, ms;
+		amp = getAmplitude();
+
 		if (!Int32.TryParse(inputMillideconds.text, out ms)) {
 			ms = 0;
 		}
@@ -90,12 +101,16 @@ public class Control : MonoBehaviour {
 		if (!Int32.TryParse(inputMillideconds.text, out ms)) {
 			ms = 0;
 		}
+		int amp;
+		amp = getAmplitude();
 
 		hertz = Mathf.Max(hertz, 1);
 
+		bool hasAmp = vibration.hasAmplitudeControl();
+
 		Debug.Log("hertz("+ms.ToString()+","+hertz.ToString()+")");
 		Sound.Param param;
-		param = Sound.createParamFrequency(hertz, ms, 255, 1);
+		param = Sound.createParamFrequency(hertz, ms, amp, 1, hasAmp);
 		vibration.vibrate(param.timings, param.amplitudes);
 	}
 

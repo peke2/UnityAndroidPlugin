@@ -28,5 +28,5 @@ WebGL
 .DS_Store
 .vs
 # 「Build」で始まるディレクトリは外す
-/[Bb]uild*/
+[Bb]uild*/
 

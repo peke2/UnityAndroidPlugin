@@ -14,6 +14,7 @@ public class Sound : MonoBehaviour {
 	AudioSource audioSource;
 
 	Vibration vibration;
+	bool hasAmplitudeControl;
 
 
 	// Use this for initialization
@@ -33,20 +34,22 @@ public class Sound : MonoBehaviour {
 		audioList = new Dictionary<string, AudioClip>();
 		paramList = new Dictionary<string, Param>();
 
+		vibration = new Vibration();
+		hasAmplitudeControl = vibration.hasAmplitudeControl();
+
 		AudioClip[] clips = Resources.LoadAll<AudioClip>("Sounds");
 		List<string> list = new List<string>();
 		foreach (AudioClip ac in clips)
 		{
 			string name = ac.name;
 			audioList[name] = ac;
-			paramList[name] = createParam(ac, 10);
+			paramList[name] = createParam(ac, 10, hasAmplitudeControl);
 			list.Add(ac.name);
 		}
 		dropdownSoundList.AddOptions(list);
 
 		audioSource = gameObject.AddComponent<AudioSource>();
 
-		vibration = new Vibration();
 	}
 	
 	// Update is called once per frame
@@ -56,17 +59,11 @@ public class Sound : MonoBehaviour {
 
 	void onButtonPlay()
 	{
-		//AudioClip clip = Resources.Load<AudioClip>("Sound/bgm_maoudamashii_neorock82");
-		//AudioClip clip = Resources.Load<AudioClip>("Sound/se_maoudamashii_explosion02");
-
-		//while (clip.LoadAudioData() == false) {
-		//}
 		Dropdown.OptionData optdata;
 		optdata = dropdownSoundList.options[dropdownSoundList.value];
 		string name = optdata.text;
 
 		AudioClip clip = audioList[name];
-		//AudioClip clip = audioList["se_maoudamashii_explosion02"];
 
 		audioSource.clip = clip;
 		audioSource.Play();
@@ -100,21 +97,25 @@ public class Sound : MonoBehaviour {
 	/// </summary>
 	/// <returns>振動に渡す値</returns>
 	/// <param name="v">1〜-1の値</param>
-	static float clampVibration(float v)
+	public static float clampVibration(float v, int amplitude, bool hasAmplitudeControl)
 	{
 		v = Mathf.Abs(v);
 		v = Mathf.Clamp01(v);
-		//	ON/OFFしかないので、どちらかに寄せる
-		if (v > 0.5f) {
-			v = 1;
-		} else {
-			v = 0;
+
+		if( hasAmplitudeControl == false )
+		{
+			//	ON/OFFしかないので、どちらかに寄せる
+			if (v > 0.5f) {
+				v = 1;
+			} else {
+				v = 0;
+			}
 		}
-		//v *= 255.0f;
+		v *= amplitude;
 		return v;
 	}
 
-	public static Param createParam(AudioClip clip, int stepMilliseconds)
+	public static Param createParam(AudioClip clip, int stepMilliseconds, bool hasAmplitudeControl)
 	{
 		//	各サンプル間の秒数から指定されたステップ時間のサンプル数を求める
 		float oneSampleMilliSec = 1.0f / clip.frequency * 1000;
@@ -136,9 +137,9 @@ public class Sound : MonoBehaviour {
 
 		for(int i=0; i<count; i++) {
 			float v;
-			v = samples[i*step];
+			v = samples[i*clip.channels*step];	//	ステレオの場合「LRLR」の順番でデータが入っている
 
-			v = clampVibration(v) * Vibration.MAX_AMPLITUDE;
+			v = clampVibration(v, Vibration.MAX_AMPLITUDE, hasAmplitudeControl);
 
 			param.amplitudes[i] = (int)v;
 			param.timings[i] = stepMilliseconds;
@@ -148,7 +149,7 @@ public class Sound : MonoBehaviour {
 	}
 
 
-	public static Param createParamFrequency(float hertz, int milliseconds, int amplitude, int stepMilliseconds)
+	public static Param createParamFrequency(float hertz, int milliseconds, int amplitude, int stepMilliseconds, bool hasAmplitudeControl)
 	{
 		int length = milliseconds / stepMilliseconds;	//	端数は切り捨て
 		Param param = new Param(length);
@@ -162,7 +163,7 @@ public class Sound : MonoBehaviour {
 			float rad = 2 * Mathf.PI * t;
 			float r = Mathf.Sin(rad);
 
-			r = clampVibration(r) * amp;
+			r = clampVibration(r, amp, hasAmplitudeControl);
 
 			param.timings[i] = stepMilliseconds;
 			param.amplitudes[i] = (int)r;
